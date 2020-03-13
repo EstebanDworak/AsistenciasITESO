@@ -4,14 +4,34 @@ abstract class HomeEvent extends Equatable {
   const HomeEvent();
 }
 
-class LoadConfigsEvent extends HomeEvent {
+class LoadSubjectsEvent extends HomeEvent {
   @override
   List<Object> get props => null;
 }
 
-class LoadedConfigsEvent extends HomeEvent {
+class LoadedSubjectsEvent extends HomeEvent {
   @override
   List<Object> get props => null;
+}
+
+
+class LoadNewSubjectsEvent extends HomeEvent {
+  @override
+  List<Object> get props => null;
+}
+
+class LoadedNewSubjectsEvent extends HomeEvent {
+  @override
+  List<Object> get props => null;
+}
+
+
+class AddSubectEvent extends HomeEvent {
+  final Subject newSubject;
+
+  AddSubectEvent({@required this.newSubject});
+  @override
+  List<Object> get props => [newSubject];
 }
 
 // class SaveConfigsEvent extends HomeEvent {

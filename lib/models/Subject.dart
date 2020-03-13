@@ -61,3 +61,32 @@ class SubjectApiClient {
     return quotes;
   }
 }
+
+
+class NewSubjectApiClient {
+  final http.Client httpClient;
+
+  NewSubjectApiClient({
+    @required this.httpClient,
+  }) : assert(httpClient != null);
+
+  Future<List<Subject>> fetchQuote() async {
+    final url = 'https://api.myjson.com/bins/jfzle';
+    final response = await this.httpClient.get(url);
+  print('acaca');
+    if (response.statusCode != 200) {
+      throw new Exception('error getting quotes');
+    }
+
+    final json = jsonDecode(response.body);
+      List<Subject> quotes = new List<Subject>();
+
+    for (var i = 0; i < json['classes'].length; i++) {
+      quotes.add(Subject.fromJson(json['classes'][i]));
+
+    // print(json['classes'][i]);
+    }
+    
+    return quotes;
+  }
+}

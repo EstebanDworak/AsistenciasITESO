@@ -14,13 +14,23 @@ class DoneState extends HomeState {
   List<Object> get props => [];
 }
 
-class LoadedConfigsState extends HomeState {
+class LoadedSubectsState extends HomeState {
   final List<Subject> subjects;
 
-  LoadedConfigsState({@required this.subjects});
+  LoadedSubectsState({@required this.subjects});
   @override
   List<Object> get props => [subjects];
 }
+
+
+class LoadedNewSubectsState extends HomeState {
+  final List<Subject> newSubjects;
+
+  LoadedNewSubectsState({@required this.newSubjects});
+  @override
+  List<Object> get props => [newSubjects];
+}
+
 
 class ErrorState extends HomeState {
   final String error;

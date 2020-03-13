@@ -23,14 +23,14 @@ class _HomePageState extends State<HomePage> {
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeInitial && subjects.length == 0) {
-            BlocProvider.of<HomeBloc>(context).add(LoadConfigsEvent());
+            BlocProvider.of<HomeBloc>(context).add(LoadSubjectsEvent());
             return loading(context);
           }
           
-          if (state is LoadedConfigsState) {
+          if (state is LoadedSubectsState) {
             subjects = state.subjects;
 
-            BlocProvider.of<HomeBloc>(context).add(LoadedConfigsEvent());
+            BlocProvider.of<HomeBloc>(context).add(LoadedSubjectsEvent());
           }
           return buildScafold(context);
         },

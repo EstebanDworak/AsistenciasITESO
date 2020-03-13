@@ -32,38 +32,48 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> mapEventToState(
     HomeEvent event,
   ) async* {
-    if (event is LoadConfigsEvent) {
+    if (event is LoadSubjectsEvent) {
       try {
 
         final List<Subject> subjects = await new SubjectApiClient(httpClient: new http.Client()).fetchQuote();
 
-        yield LoadedConfigsState(subjects: subjects);
+        yield LoadedSubectsState(subjects: subjects);
 
       } catch (ex) {
         // no hay datos
         print(ex.toString());
-        yield ErrorState(error: "No hay datos guardados...");
+        yield ErrorState(error: "Error al cargar materias");
       }
     }
-    if (event is LoadedConfigsEvent) {
+    if (event is LoadNewSubjectsEvent) {
+      try {
+
+        final List<Subject> subjects = await new NewSubjectApiClient(httpClient: new http.Client()).fetchQuote();
+
+        yield LoadedNewSubectsState(newSubjects: subjects);
+
+      } catch (ex) {
+        // no hay datos
+        print(ex.toString());
+        yield ErrorState(error: "Error al cargar materias");
+      }
+    }
+    if (event is LoadedNewSubjectsEvent) {
       yield DoneState();
     }
-    // if (event is SaveConfigsEvent) {
-    //   try {
-    //     // verificar si existen datos
-    //     if (_configBox.values.first == null) throw Exception();
-    //     // cargar datos
-    //     _configBox.put("drop", event.configs["drop"]);
-    //     _configBox.put("switch", event.configs["switch"]);
-    //     _configBox.put("checkbox", event.configs["checkbox"]);
-    //     _configBox.put("slider", event.configs["slider"]);
+    if (event is LoadedSubjectsEvent) {
+      yield DoneState();
+    }
+    if (event is AddSubectEvent) {
 
-    //     yield DoneState();
-    //   } catch (ex) {
-    //     // error al guardar
-    //     print(ex.toString());
-    //     yield ErrorState(error: "Error al guardar");
-    //   }
-    // }
+    // http.Client httpClient =  new http.Client();
+    // await  httpClient.post('postURL_TODO');
+
+// TODO POST
+print('TODO POST');
+
+      yield DoneState();
+    }
+
   }
 }
