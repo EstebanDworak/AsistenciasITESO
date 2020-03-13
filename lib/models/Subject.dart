@@ -13,9 +13,9 @@ import 'dart:convert';
 class Subject extends Equatable {
   final String name;
   final String schedule;
-  final String assist;
+  final int assist;
 
-  const Subject({this.name, this.schedule, this.assist});
+  const Subject({this.name = "", this.schedule ="", this.assist=0});
 
   @override
   List<Object> get props => [name, schedule, assist];
@@ -35,7 +35,6 @@ class Subject extends Equatable {
 
 
 class SubjectApiClient {
-  final _baseUrl = 'https://quote-garden.herokuapp.com';
   final http.Client httpClient;
 
   SubjectApiClient({
@@ -43,7 +42,7 @@ class SubjectApiClient {
   }) : assert(httpClient != null);
 
   Future<List<Subject>> fetchQuote() async {
-    final url = 'https://api.myjson.com/bins/bttzu';
+    final url = 'https://api.myjson.com/bins/ibo7e';
     final response = await this.httpClient.get(url);
   print('acaca');
     if (response.statusCode != 200) {

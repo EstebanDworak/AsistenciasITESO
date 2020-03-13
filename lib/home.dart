@@ -17,24 +17,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    subjects.add(new Subject());
 
     return BlocProvider(
       create: (context) => HomeBloc(),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          print(state);
-          if (state is HomeInitial) {
-            print('no');
+          if (state is HomeInitial && subjects.length == 0) {
             BlocProvider.of<HomeBloc>(context).add(LoadConfigsEvent());
             return loading(context);
           }
+          
           if (state is LoadedConfigsState) {
             subjects = state.subjects;
-            print("hola");
-            // _switchValue = state.configs["switch"];
-            // _checkValue = state.configs["check"];
-            // _sliderValue = state.configs["slider"];
+
             BlocProvider.of<HomeBloc>(context).add(LoadedConfigsEvent());
           }
           return buildScafold(context);
@@ -86,7 +81,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
       child: Card(
-        color: Colors.green[100],
+        color: subject.assist == 0 ? Colors.green[100] : Colors.orange[100],
         child: Column(
           children: <Widget>[
             ListTile(
@@ -104,9 +99,9 @@ class _HomePageState extends State<HomePage> {
                       title: Text('Asistencia'),
                       children: <Widget>[
                         Text(
-                          'Hasta ahora, tienes 0 faltas',
-                          textAlign: TextAlign.center,
-                        ),
+                                  'Hasta ahora, tienes '+subject.assist.toString()+' faltas',
+                                  textAlign: TextAlign.center,
+                                ),
                         SizedBox(
                           height: 20,
                         ),
@@ -135,8 +130,35 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SafeArea(
         child: ListView.builder(
-          itemCount: subjects.length,
+          itemCount: (subjects.length + 1),
           itemBuilder: (BuildContext context, int index) {
+            if (index == subjects.length)
+              return (Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.add_circle),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  AvailableCoursesPage(),
+                            ),
+                          );
+                        },
+                        color: Colors.blue,
+                      ),
+                      Text('Alta de materias'),
+                    ],
+                  )
+                ],
+              ));
+              print(subjects[index]);
             return card(context, subjects[index]);
           },
         ),
@@ -146,7 +168,7 @@ class _HomePageState extends State<HomePage> {
       //     children: <Widget>[
       //       Text(subjects[0].toString()),
       //       card(context, subjects[0]),
-            
+
       //       GestureDetector(
       //         onTap: () {
       //           showDialog(
@@ -378,7 +400,6 @@ class _HomePageState extends State<HomePage> {
       //     ],
       //   ),
       // ),
-    
     );
   }
 }
