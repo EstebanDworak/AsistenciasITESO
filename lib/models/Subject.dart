@@ -7,32 +7,29 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
-
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Subject extends Equatable {
   final String name;
   final String schedule;
   final int assist;
 
-  const Subject({this.name = "", this.schedule ="", this.assist=0});
+  const Subject({this.name = "", this.schedule = "", this.assist = 0});
 
   @override
   List<Object> get props => [name, schedule, assist];
 
   static Subject fromJson(dynamic json) {
     return Subject(
-      name: json['name'],
-      schedule: json['schedule'],
-      assist: json['assist'],
+      assist: int.parse(json['fields']['assist']['integerValue']),
+      schedule: json['fields']['schedule']['stringValue'],
+      name: json['fields']['name']['stringValue'],
     );
   }
 
   @override
   String toString() => 'Quote { id: $name $schedule $assist}';
 }
-
-
 
 class SubjectApiClient {
   final http.Client httpClient;
@@ -42,26 +39,27 @@ class SubjectApiClient {
   }) : assert(httpClient != null);
 
   Future<List<Subject>> fetchQuote() async {
-    final url = 'https://api.myjson.com/bins/ibo7e';
+    final url =
+        'https://firestore.googleapis.com/v1/projects/asistenciasiteso/databases/(default)/documents/usersubjects/';
     final response = await this.httpClient.get(url);
-  print('acaca');
+    print('acaca');
+
     if (response.statusCode != 200) {
       throw new Exception('error getting quotes');
     }
 
     final json = jsonDecode(response.body);
-      List<Subject> quotes = new List<Subject>();
+    List<Subject> quotes = new List<Subject>();
 
-    for (var i = 0; i < json['classes'].length; i++) {
-      quotes.add(Subject.fromJson(json['classes'][i]));
+    for (var i = 0; i < json['documents'].length; i++) {
+      quotes.add(Subject.fromJson(json['documents'][i]));
 
-    // print(json['classes'][i]);
+      // print(json['classes'][i]);
     }
-    
+
     return quotes;
   }
 }
-
 
 class NewSubjectApiClient {
   final http.Client httpClient;
@@ -71,22 +69,51 @@ class NewSubjectApiClient {
   }) : assert(httpClient != null);
 
   Future<List<Subject>> fetchQuote() async {
-    final url = 'https://api.myjson.com/bins/jfzle';
+    // Firestore.instance
+    //     .collection('subjects')
+    //     .where("schedule", isEqualTo: "5 a 55")
+    //     .snapshots()
+    //     .listen((data) {
+    //   List<Subject> quotes = new List<Subject>();
+    //   data.documents.forEach((doc) {
+    //     print(doc["name"]);
+    //     Subject subject = new Subject(
+    //         assist: doc["assist"],
+    //         name: doc["name"],
+    //         schedule: doc["schedule"]);
+    //     quotes.add(subject);
+    //   });
+
+    //   return quotes;
+    // });
+
+    final url =
+        'https://firestore.googleapis.com/v1/projects/asistenciasiteso/databases/(default)/documents/subjects/';
     final response = await this.httpClient.get(url);
-  print('acaca');
+    print('acaca');
     if (response.statusCode != 200) {
       throw new Exception('error getting quotes');
     }
 
     final json = jsonDecode(response.body);
-      List<Subject> quotes = new List<Subject>();
+    List<Subject> quotes = new List<Subject>();
 
-    for (var i = 0; i < json['classes'].length; i++) {
-      quotes.add(Subject.fromJson(json['classes'][i]));
+    for (var i = 0; i < json['documents'].length; i++) {
+      quotes.add(Subject.fromJson(json['documents'][i]));
 
-    // print(json['classes'][i]);
+      // print(json['classes'][i]);
     }
-    
+
     return quotes;
+  }
+}
+
+class PostSubject {
+  void post(Subject subject) async {
+    Firestore.instance.collection('usersubjects').document().setData({
+      'name': subject.name,
+      'schedule': subject.schedule,
+      'assist': subject.assist
+    });
   }
 }

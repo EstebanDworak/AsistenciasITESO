@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
       create: (context) => HomeBloc(),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          if (state is HomeInitial && subjects.length == 0) {
+          if (state is HomeInitial) {
             BlocProvider.of<HomeBloc>(context).add(LoadSubjectsEvent());
             return loading(context);
           }

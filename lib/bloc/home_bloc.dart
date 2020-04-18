@@ -13,10 +13,6 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 
-
-
-
-
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   // Box _configBox;
 
@@ -38,6 +34,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         final List<Subject> subjects = await new SubjectApiClient(httpClient: new http.Client()).fetchQuote();
 
         yield LoadedSubectsState(subjects: subjects);
+        
 
       } catch (ex) {
         // no hay datos
@@ -47,7 +44,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
     if (event is LoadNewSubjectsEvent) {
       try {
-
         final List<Subject> subjects = await new NewSubjectApiClient(httpClient: new http.Client()).fetchQuote();
 
         yield LoadedNewSubectsState(newSubjects: subjects);
@@ -65,14 +61,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       yield DoneState();
     }
     if (event is AddSubectEvent) {
+        print(event);
 
-    // http.Client httpClient =  new http.Client();
-    // await  httpClient.post('postURL_TODO');
+    try {
+      
 
-// TODO POST
-print('TODO POST');
+        await new PostSubject().post(event.newSubject );
 
-      yield DoneState();
+await Future.value(42).timeout(const Duration(seconds: 3));
+
+        yield HomeInitial(); 
+
+      } catch (ex) {
+        // no hay datos
+        print(ex.toString());
+        yield ErrorState(error: "Error al cargar materias");
+      }
+
     }
 
   }
