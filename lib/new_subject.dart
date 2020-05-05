@@ -111,7 +111,8 @@ class _NewSubjectState extends State<NewSubject> {
                         'name': _name,
                         'teacher': widget.account.email,
                         "code": r.toString(),
-                        "schedule": _schedule
+                        "schedule": _schedule,
+                        "students": []
                       });
 
                       Navigator.of(context).pop();

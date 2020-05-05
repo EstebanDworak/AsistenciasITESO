@@ -6,34 +6,45 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 
-class SubjectCatalogTeacher extends StatefulWidget {
+class SubjectAsistencia extends StatefulWidget {
   // final Function cb;
   // final String email;
   final GoogleSignInAccount account;
 
-  const SubjectCatalogTeacher({Key key, @required this.account})
+  const SubjectAsistencia({Key key, @required this.account})
       : super(key: key);
 
   @override
-  _SubjectCatalogTeacherState createState() => _SubjectCatalogTeacherState();
+  _SubjectAsistenciaState createState() => _SubjectAsistenciaState();
 }
 
-class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
+class _SubjectAsistenciaState extends State<SubjectAsistencia> {
   List<Subject> _subjects = new List<Subject>();
 
   @override
   void initState() {
     super.initState();
-    Firestore.instance
-        .collection('subjects')
-        .where("teacher", isEqualTo: widget.account.email)
-        .snapshots()
-        .listen((data) {
+    Firestore.instance.collection('subjects').snapshots()
+    .listen((data) {
       List<Subject> subjects = new List<Subject>();
       data.documents.forEach((doc) {
         print(doc);
+        
+        int a = 0;
+        if(doc["students"]!=null){
+          for (var i = 0;
+                                    i < doc["students"].length;
+                                    i++) {
+                                  if (doc["students"][i]["email"] ==
+                                      widget.account.email) {
+                                    a =doc["students"][i]["assist"];
+                                  }
+                                  
+                                }
+        }
+
         Subject subject = new Subject(
-            assist: doc["assist"],
+            assist: a,
             schedule: doc["schedule"],
             code: doc["code"],
             teacher: doc["teacher"],
@@ -94,55 +105,60 @@ class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
                         title: Text(_subjects[index].name +
                             " - " +
                             _subjects[index].schedule),
-                        subtitle: Text("Código: " + _subjects[index].code),
-                        trailing: Column(
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                // final String currentTeam =
-                                //     await _asyncInputDialog(context);
-                                String currentTeam = "";
+                        subtitle: Text("Asistencias: " + _subjects[index].assist.toString()),
+                        trailing: GestureDetector(
+                          onTap: () async {
+                            // final String currentTeam =
+                            Firestore.instance
+                                .collection('subjects')
+                                .document(_subjects[index].id)
+                                .get()
+                                .then((DocumentSnapshot ds) {
+                              // use ds as a snapshot
+                              print(ds);
 
-                                Random rnd = new Random();
-                                int min = 100000, max = 999999;
-                                currentTeam =
-                                    (min + rnd.nextInt(max - min)).toString();
-
-                                if (currentTeam != null && currentTeam != "") {
-                                  final DocumentReference postRef =
-                                      Firestore.instance.document(
-                                          'subjects/' + _subjects[index].id);
-
-                                  Firestore.instance
-                                      .runTransaction((Transaction tx) async {
-                                    DocumentSnapshot postSnapshot =
-                                        await tx.get(postRef);
-                                    if (postSnapshot.exists) {
-                                      await tx.update(
-                                          postRef, <String, dynamic>{
-                                        'code': currentTeam,
-                                        'students':[{"email":"ecdcatemaco@gmail.com", "assist": 0}]
-                                      });
-                                    }
+                              var newStudents = <String, dynamic>{"list": []};
+                              bool f = false;
+                              if (ds.data["students"] != null) {
+                                for (var i = 0;
+                                    i < ds.data["students"].length;
+                                    i++) {
+                                  if (ds.data["students"][i]["email"] ==
+                                      widget.account.email) {
+                                    f = true;
+                                  }
+                                  newStudents["list"].add({
+                                    "email": ds.data["students"][i]["email"],
+                                    "assist": ds.data["students"][i]["assist"]
                                   });
-                                
                                 }
-                              },
-                              child: Icon(Icons.refresh),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                GallerySaver.saveImage(
-                                        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" +
-                                            _subjects[index].code +
-                                            ".jpg")
-                                    .then((bool success) {
-                                  _showDialog();
+                              }
+                              if (f == false) {
+                                newStudents["list"].add({
+                                  "email": widget.account.email,
+                                  "assist": 0
                                 });
-                              },
-                              child: Icon(Icons.image),
-                            )
-                          ],
+                              }
+
+                              final DocumentReference postRef = Firestore
+                                  .instance
+                                  .document('subjects/' + _subjects[index].id);
+
+                              Firestore.instance
+                                  .runTransaction((Transaction tx) async {
+                                DocumentSnapshot postSnapshot =
+                                    await tx.get(postRef);
+                                if (postSnapshot.exists) {
+                                  await tx.update(postRef, <String, dynamic>{
+                                    'students': newStudents["list"]
+                                  });
+                                }
+                              });
+
+                              Navigator.of(context).pop(null);
+                            });
+                          },
+                          child: Icon(Icons.list),
                         )),
                   ],
                 ),

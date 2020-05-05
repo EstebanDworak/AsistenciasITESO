@@ -6,13 +6,19 @@
 
 import 'dart:async';
 import 'dart:convert' show json;
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:asistencias/models/Subject.dart';
+import 'package:asistencias/student_panel.dart';
 import 'package:asistencias/teacher_panel.dart';
 import "package:http/http.dart" as http;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: <String>[
@@ -39,12 +45,12 @@ class SignInDemoState extends State<SignInDemo> {
   GoogleSignInAccount _currentUser;
   String _contactText;
 
-  _navigateAndDisplaySelection(BuildContext context) async {
+  _navigateAndDisplaySelection(BuildContext context, GoogleSignInAccount account) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => StudentPage(
-                cb: _handleSignOut,
+          builder: (context) => StudentPanel(
+                account: account,
               )),
     );
 
@@ -68,6 +74,8 @@ class SignInDemoState extends State<SignInDemo> {
   @override
   void initState() {
     super.initState();
+
+
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
       if (account != null) {
         Firestore.instance
@@ -78,7 +86,7 @@ class SignInDemoState extends State<SignInDemo> {
           print(data.documents.length);
 
           if (data.documents.length == 0) {
-            _navigateAndDisplaySelection(context);
+            _navigateAndDisplaySelection(context, account);
           } else {
             _navigateAndDisplaySelection2(context, account);
           }
@@ -120,6 +128,7 @@ class SignInDemoState extends State<SignInDemo> {
       ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
