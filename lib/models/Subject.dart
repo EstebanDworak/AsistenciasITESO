@@ -13,8 +13,11 @@ class Subject extends Equatable {
   final String name;
   final String schedule;
   final int assist;
+  final String teacher;
+  final String code;
+  final String id;
 
-  const Subject({this.name = "", this.schedule = "", this.assist = 0});
+  const Subject({this.name = "", this.schedule = "", this.assist = 0, this.teacher="", this.code = "", this.id = ""});
 
   @override
   List<Object> get props => [name, schedule, assist];

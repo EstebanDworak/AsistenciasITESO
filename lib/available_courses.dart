@@ -125,6 +125,7 @@ class _AvailableCoursesPageState extends State<AvailableCoursesPage> {
               ),
             ),
     );
+ 
   }
 
   Scaffold buildScafold(BuildContext context) {
