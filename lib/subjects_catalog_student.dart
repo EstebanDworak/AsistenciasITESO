@@ -52,7 +52,7 @@ class _SubjectCatalogStudentState extends State<SubjectCatalogStudent> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Imagen guardada correctamente"),
+          title: new Text("Materia agregada con éxito."),
           content: new Icon(
             Icons.check,
             color: Colors.green,
@@ -75,7 +75,7 @@ class _SubjectCatalogStudentState extends State<SubjectCatalogStudent> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Materias'),
+          title: Text('Inscribir cursos'),
           // automaticallyImplyLeading: false,
         ),
         body: SafeArea(
@@ -137,9 +137,10 @@ class _SubjectCatalogStudentState extends State<SubjectCatalogStudent> {
                                     'students': newStudents["list"]
                                   });
                                 }
+_showDialog();
                               });
 
-                              Navigator.of(context).pop(null);
+                              // Navigator.of(context).pop(null);
                             });
                           },
                           child: Icon(Icons.add),

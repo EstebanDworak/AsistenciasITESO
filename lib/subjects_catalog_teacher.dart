@@ -78,7 +78,7 @@ class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Materias'),
+          title: Text('Editar Materias'),
           // automaticallyImplyLeading: false,
         ),
         body: SafeArea(

@@ -110,7 +110,7 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Materias'),
+          title: Text('Tomar asistencia'),
           // automaticallyImplyLeading: false,
         ),
         body: SafeArea(
@@ -188,7 +188,7 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
                                   });
 
                                   _showDialog();
-                                  Navigator.of(context).pop(null);
+                                  // Navigator.of(context).pop(null);
                                 });
                               } else {
                                 _showDialogError();

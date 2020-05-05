@@ -16,6 +16,35 @@ class _NewSubjectState extends State<NewSubject> {
   String _schedule = null;
   final _random = new Random();
 
+
+// user defined function
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("¡Material dada de alta correctamente!"),
+          content: new Icon(
+            Icons.check,
+            color: Colors.green,
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Cerrar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +144,8 @@ class _NewSubjectState extends State<NewSubject> {
                         "students": []
                       });
 
-                      Navigator.of(context).pop();
+  _showDialog();
+                      // Navigator.of(context).pop();
                     },
               color: Colors.blue,
               child: Text(
