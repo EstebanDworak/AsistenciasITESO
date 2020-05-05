@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert' show json;
 
 import 'package:asistencias/models/Subject.dart';
+import 'package:asistencias/teacher_panel.dart';
 import "package:http/http.dart" as http;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -16,7 +17,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: <String>[
     'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
+    // 'https://www.googleapis.com/auth/contacts.readonly',
   ],
 );
 
@@ -38,6 +39,32 @@ class SignInDemoState extends State<SignInDemo> {
   GoogleSignInAccount _currentUser;
   String _contactText;
 
+  _navigateAndDisplaySelection(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => StudentPage(
+                cb: _handleSignOut,
+              )),
+    );
+
+    _handleSignOut();
+  }
+
+  _navigateAndDisplaySelection2(
+      BuildContext context, GoogleSignInAccount account) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => TeacherPanel(
+                // cb: _handleSignOut,email: email,
+                account: account,
+              )),
+    );
+
+    _handleSignOut();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -50,25 +77,10 @@ class SignInDemoState extends State<SignInDemo> {
             .listen((data) {
           print(data.documents.length);
 
-          
-
           if (data.documents.length == 0) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => StudentPage(
-                  cb: _handleSignOut,
-                ),
-              ),
-            );
+            _navigateAndDisplaySelection(context);
           } else {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => TeacherPage(
-                  cb: _handleSignOut,
-                  email: account.email,
-                ),
-              ),
-            );
+            _navigateAndDisplaySelection2(context, account);
           }
         });
       }
@@ -112,13 +124,68 @@ class SignInDemoState extends State<SignInDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Google Sign In'),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          children: <Widget>[
+            SizedBox(
+              height: 110,
+            ),
+            Icon(
+              Icons.edit,
+              color: Colors.teal[200],
+              size: 60.0,
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              'RollCall',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Oswald',
+                fontSize: 40,
+                color: Colors.teal[300],
+              ),
+            ),
+            SizedBox(
+              height: 60,
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            RaisedButton(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text('Iniciar sesión con Google'),
+              ),
+              onPressed: _handleSignIn,
+              color: Colors.blue,
+              textColor: Colors.white,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Text(
+              '¿No tienes una cuenta aún?',
+              textAlign: TextAlign.center,
+            ),
+            GestureDetector(
+              onTap: () {
+                _handleSignIn();
+              },
+              child: Text(
+                '¡Regístrate aquí!',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
-        body: ConstrainedBox(
-          constraints: const BoxConstraints.expand(),
-          child: _buildBody(),
-        ));
+      ),
+    );
   }
 }
 
@@ -148,140 +215,4 @@ class StudentPage extends StatelessWidget {
           ),
         ));
   }
-}
-
-class TeacherPage extends StatefulWidget {
-  final Function cb;
-  final String email;
-  const TeacherPage({Key key, this.cb, @required this.email}) : super(key: key);
-
-  @override
-  _TeacherPageState createState() => _TeacherPageState();
-}
-
-class _TeacherPageState extends State<TeacherPage> {
-  List<Subject> _subjects = new List<Subject>();
-
-  @override
-  void initState() {
-    super.initState();
-    Firestore.instance
-        .collection('subjects')
-        .where("teacher", isEqualTo: widget.email)
-        .snapshots()
-        .listen((data) {
-      List<Subject> subjects = new List<Subject>();
-      data.documents.forEach((doc) {
-        print(doc);
-        Subject subject = new Subject(
-            assist: doc["assist"],
-            schedule: doc["schedule"],
-            code: doc["code"],
-            teacher: doc["teacher"],
-            name: doc["name"], id: doc.documentID);
-        subjects.add(subject);
-      });
-      setState(() {
-        _subjects = subjects;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Profesor - ' + widget.email),
-          automaticallyImplyLeading: false,
-        ),
-        body: SafeArea(
-          child: ListView.builder(
-            itemCount: (_subjects.length),
-            itemBuilder: (BuildContext context, int index) {
-              // return card(context, _subjects[index]);
-              return GestureDetector(
-                onTap: () async {
-                final String currentTeam = await _asyncInputDialog(context);
-                print("Current team name is $currentTeam");
-
-                final DocumentReference postRef = Firestore.instance.document('subjects/'+_subjects[index].id);
-                Firestore.instance.runTransaction((Transaction tx) async {
-                  DocumentSnapshot postSnapshot = await tx.get(postRef);
-                  if (postSnapshot.exists) {
-                    await tx.update(postRef, <String, dynamic>{'code': currentTeam});
-                  }
-                });
-
-
-              },
-
-
-                child: Card(
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.book),
-                        title: Text(_subjects[index].name +
-                            " - " +
-                            _subjects[index].schedule),
-                        subtitle: Text("Código: " + _subjects[index].code),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-
-              return Card(
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(Icons.book),
-                      title: Text(_subjects[index].name +
-                          " - " +
-                          _subjects[index].schedule),
-                      subtitle: Text("Código: " + _subjects[index].code),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ));
-  }
-}
-
-
-
-Future<String> _asyncInputDialog(BuildContext context) async {
-  String teamName = '';
-  return showDialog<String>(
-    context: context,
-    barrierDismissible: false, // dialog is dismissible with a tap on the barrier
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Enter current team'),
-        content: new Row(
-          children: <Widget>[
-            new Expanded(
-                child: new TextField(
-              autofocus: true,
-              decoration: new InputDecoration(
-                  labelText: 'Team Name', hintText: 'eg. Juventus F.C.'),
-              onChanged: (value) {
-                teamName = value;
-              },
-            ))
-          ],
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop(teamName);
-            },
-          ),
-        ],
-      );
-    },
-  );
 }
