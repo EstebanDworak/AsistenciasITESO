@@ -33,11 +33,8 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
           for (var i = 0; i < doc["students"].length; i++) {
             if (doc["students"][i]["email"] == widget.account.email) {
               a = doc["students"][i]["assist"];
-            }
-          }
-        }
 
-        Subject subject = new Subject(
+    Subject subject = new Subject(
             assist: a,
             schedule: doc["schedule"],
             code: doc["code"],
@@ -45,6 +42,13 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
             name: doc["name"],
             id: doc.documentID);
         subjects.add(subject);
+
+            }
+          }
+        }
+        
+
+        
       });
       setState(() {
         _subjects = subjects;
@@ -157,7 +161,9 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
                                               ["email"],
                                           "assist": ds.data["students"][i]
                                                   ["assist"] +
-                                              1
+                                              1,
+                                           "name": ds.data["students"][i]
+                                              ["name"],   
                                         });
                                       }else{
 
@@ -165,7 +171,9 @@ class _SubjectAsistenciaState extends State<SubjectAsistencia> {
                                         "email": ds.data["students"][i]
                                             ["email"],
                                         "assist": ds.data["students"][i]
-                                            ["assist"]
+                                            ["assist"],
+                                            "name": ds.data["students"][i]
+                                            ["name"]
                                       });
                                       }
                                     }

@@ -1,4 +1,5 @@
 import 'package:asistencias/subjects_catalog_teacher.dart';
+import 'package:asistencias/subjects_catalog_teacher_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -117,7 +118,7 @@ class TeacherPanel extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SubjectCatalogTeacher(
+                        builder: (context) => SubjectCatalogTeacherList(
                               account: account,
                             )),
                   );

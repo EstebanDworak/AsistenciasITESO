@@ -6,19 +6,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 
-class SubjectCatalogTeacher extends StatefulWidget {
+class SubjectCatalogTeacherList extends StatefulWidget {
   // final Function cb;
   // final String email;
   final GoogleSignInAccount account;
 
-  const SubjectCatalogTeacher({Key key, @required this.account})
+  const SubjectCatalogTeacherList({Key key, @required this.account})
       : super(key: key);
 
   @override
-  _SubjectCatalogTeacherState createState() => _SubjectCatalogTeacherState();
+  _SubjectCatalogTeacherListState createState() =>
+      _SubjectCatalogTeacherListState();
 }
 
-class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
+class _SubjectCatalogTeacherListState extends State<SubjectCatalogTeacherList> {
   List<Subject> _subjects = new List<Subject>();
 
   @override
@@ -32,11 +33,15 @@ class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
       List<Subject> subjects = new List<Subject>();
       data.documents.forEach((doc) {
         print(doc);
+
+        print(doc["students"].runtimeType);
+
         Subject subject = new Subject(
             assist: doc["assist"],
             schedule: doc["schedule"],
             code: doc["code"],
             teacher: doc["teacher"],
+            students: doc["students"],
             name: doc["name"],
             id: doc.documentID);
         subjects.add(subject);
@@ -78,71 +83,38 @@ class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Editar Materias'),
+          title: Text('Asistencias'),
           // automaticallyImplyLeading: false,
         ),
         body: SafeArea(
           child: ListView.builder(
             itemCount: (_subjects.length),
+            shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               // return card(context, _subjects[index]);
               return Card(
                 child: Column(
                   children: <Widget>[
                     ListTile(
-                        leading: Icon(Icons.book),
-                        title: Text(_subjects[index].name +
-                            " - " +
-                            _subjects[index].schedule),
-                        subtitle: Text("Código: " + _subjects[index].code),
-                        trailing: Column(
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                // final String currentTeam =
-                                //     await _asyncInputDialog(context);
-                                String currentTeam = "";
-
-                                Random rnd = new Random();
-                                int min = 100000, max = 999999;
-                                currentTeam =
-                                    (min + rnd.nextInt(max - min)).toString();
-
-                                if (currentTeam != null && currentTeam != "") {
-                                  final DocumentReference postRef =
-                                      Firestore.instance.document(
-                                          'subjects/' + _subjects[index].id);
-
-                                  Firestore.instance
-                                      .runTransaction((Transaction tx) async {
-                                    DocumentSnapshot postSnapshot =
-                                        await tx.get(postRef);
-                                    if (postSnapshot.exists) {
-                                      await tx.update(
-                                          postRef, <String, dynamic>{
-                                        'code': currentTeam,
-                                      });
-                                    }
-                                  });
-                                
-                                }
-                              },
-                              child: Icon(Icons.refresh),
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                GallerySaver.saveImage(
-                                        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" +
-                                            _subjects[index].code +
-                                            ".jpg")
-                                    .then((bool success) {
-                                  _showDialog();
-                                });
-                              },
-                              child: Icon(Icons.image),
-                            )
-                          ],
-                        )),
+                      leading: Icon(Icons.book),
+                      title: Text(_subjects[index].name +
+                          " - " +
+                          _subjects[index].schedule),
+                      // subtitle: Text("Código: " + _subjects[index].code),
+                    ),
+                    _subjects[index].students.length > 0
+                        ? (ListView.builder(
+                            physics: ClampingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: (_subjects[index].students.length),
+                            itemBuilder: (BuildContext context, int index2) {
+                              return Padding(
+                                padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+                                child: Text(
+                                    _subjects[index].students[index2]["name"]+"   -   "+_subjects[index].students[index2]["assist"].toString()+" asistencia(s)"),
+                              );
+                            }))
+                        : (Text(""))
                   ],
                 ),
               );
@@ -152,6 +124,9 @@ class _SubjectCatalogTeacherState extends State<SubjectCatalogTeacher> {
   }
 }
 
+// _subjects[index].students.forEach((element) {
+//                              Text(element["name"]);
+//                           })
 Future<String> _asyncInputDialog(BuildContext context) async {
   String teamName = '';
   return showDialog<String>(

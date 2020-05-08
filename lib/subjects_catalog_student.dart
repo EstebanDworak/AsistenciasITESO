@@ -113,14 +113,16 @@ class _SubjectCatalogStudentState extends State<SubjectCatalogStudent> {
                                   }
                                   newStudents["list"].add({
                                     "email": ds.data["students"][i]["email"],
-                                    "assist": ds.data["students"][i]["assist"]
+                                    "assist": ds.data["students"][i]["assist"],
+                                    "name": ds.data["students"][i]["name"]
                                   });
                                 }
                               }
                               if (f == false) {
                                 newStudents["list"].add({
                                   "email": widget.account.email,
-                                  "assist": 0
+                                  "assist": 0,
+                                  "name": widget.account.displayName
                                 });
                               }
 
